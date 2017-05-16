@@ -33,10 +33,12 @@ class Controller_Article extends Controller_Template
 
 			if ($val->run())
 			{
-				$article = Model_Article::forge(array(
-					'title' => Input::post('title'),
-					'contents' => Input::post('contents'),
-				));
+				$article = Model_Article::forge(Input::post());
+
+				foreach (Input::post('comments') as $comment)
+				{
+					$article->comments[] = Model_Comment::forge($comment);
+				}
 
 				if ($article and $article->save())
 				{
