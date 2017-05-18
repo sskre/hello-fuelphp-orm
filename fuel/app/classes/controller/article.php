@@ -27,40 +27,37 @@ class Controller_Article extends Controller_Template
 
 	public function action_create()
 	{
-		if (Input::method() == 'POST')
-		{
-			$val = Model_Article::validate('create');
-
-			if ($val->run())
-			{
-				$article = Model_Article::forge(Input::post());
-
-				foreach (Input::post('comments') as $comment)
-				{
-					$article->comments[] = Model_Comment::forge($comment);
-				}
-
-				if ($article and $article->save())
-				{
-					Session::set_flash('success', 'Added article #'.$article->id.'.');
-
-					Response::redirect('article');
-				}
-
-				else
-				{
-					Session::set_flash('error', 'Could not save article.');
-				}
-			}
-			else
-			{
-				Session::set_flash('error', $val->error());
-			}
-		}
-
 		$this->template->title = "Articles";
 		$this->template->content = View::forge('article/create');
 
+		if (Input::method() != 'POST')
+		{
+			return;
+		}
+
+		try
+		{
+			$article = Model_Article::forge(Input::post());
+
+			foreach (Input::post('comments') as $comment)
+			{
+				$article->comments[] = Model_Comment::forge($comment);
+			}
+
+			$article->save();
+			
+			Session::set_flash('success', 'Added article #'.$article->id.'.');
+			Response::redirect('article');
+		}
+		catch (Orm\ValidationFailed $e)
+		{
+			Session::set_flash('error', $e->getMessage());
+		}
+		catch (Exception $e)
+		{
+			Session::set_flash('error', 'Could not save article.');
+			Response::redirect('article');
+		}
 	}
 
 	public function action_edit($id = null)

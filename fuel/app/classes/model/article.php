@@ -3,47 +3,69 @@ use Orm\Model_Soft;
 
 class Model_Article extends Model_Soft
 {
-	protected static $_properties = array(
+	protected static $_properties = [
 		'id',
-		'title',
-		'contents',
-		'created_at',
-		'updated_at',
-		'deleted_at',
-	);
+		'title' => [
+			'data_type' => 'text',
+			'label' => 'Title',
+			'validation' => ['required'],
+			'form' => [
+				'type' => 'text',
+			],
+		],
+		'contents' => [
+			'data_type' => 'text',
+			'label' => 'Contents',
+			'validation' => ['required'],
+			'form' => [
+				'type' => 'textarea',
+			],
+		],
+		'created_at' => [
+			'data_type' => 'datetime',
+			'form' => [
+				'type' => false,
+			],
+		],
+		'updated_at' => [
+			'data_type' => 'datetime',
+			'form' => [
+				'type' => false,
+			],
+		],
+		'deleted_at' => [
+			'data_type' => 'datetime',
+			'form' => [
+				'type' => false,
+			],
+		],
+	];
 
-	protected static $_observers = array(
-		'Orm\Observer_CreatedAt' => array(
-			'events' => array('before_insert'),
+	protected static $_observers = [
+		'Orm\Observer_CreatedAt' => [
+			'events' => ['before_insert'],
 			'mysql_timestamp' => true,
-		),
-		'Orm\Observer_UpdatedAt' => array(
-			'events' => array('before_save'),
+		],
+		'Orm\Observer_UpdatedAt' => [
+			'events' => ['before_save'],
 			'mysql_timestamp' => true,
-		),
-	);
+		],
+		'Orm\Observer_Validation' => [
+			'events' => ['before_save'],
+		],
+	];
 
-	protected static $_soft_delete = array(
+	protected static $_soft_delete = [
 		'mysql_timestamp' => true,
-	);
+	];
 
-	protected static $_has_many = array(
-		'comments' => array(
+	protected static $_has_many = [
+		'comments' => [
 			'key_from' => 'id',
 			'model_to' => 'Model_Comment',
 			'key_to' => 'article_id',
 			'cascade_save' => true,
 			'cascade_delete' => true,
-		),
-	);
-
-	public static function validate($factory)
-	{
-		$val = Validation::forge($factory);
-		$val->add_field('title', 'Title', 'required');
-		$val->add_field('contents', 'Contents', 'required');
-
-		return $val;
-	}
-
+		],
+	];
 }
